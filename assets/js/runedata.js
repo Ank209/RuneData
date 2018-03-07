@@ -6,9 +6,10 @@ let playerClues = [];
 let playerData = []
 let eliteXp = [];
 let highscoresReceived = [];
+let wrongTiming = false;
 let baseHTML = document.getElementById("mainData").innerHTML;
 
-let searchTerm = "Iron Ankh";
+let searchTerm = "about to dye";
 let maxHighscore = "HC";
 let currentHighscores = "HC";
 let currentSortCol = "Default";
@@ -23,23 +24,27 @@ function GetUserData() {
         url: "https://crossorigin.me/https://apps.runescape.com/runemetrics/profile/profile?user=" + searchTerm + "&activities=0",
         dataType: "json", success: HandlePlayerData
     });
-    $.ajax({ type: 'GET',
+    $.ajax({
+        type: 'GET',
         url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
-        dataType: "text", success: function(data) { HandlePlayerStats(data, 2, "HC") }, error: function(data) { HandleError(data, "HC") }
+        dataType: "text", success: function (data) { HandlePlayerStats(data, 2, "HC") }, error: function (data) { HandleError(data, "HC") }
     });
     $.ajax({
         url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
-        dataType: "text", success: function(data) { HandlePlayerStats(data, 1, "Iron") }, error: function(data) { HandleError(data, "Iron") }
+        dataType: "text", success: function (data) { HandlePlayerStats(data, 1, "Iron") }, error: function (data) { HandleError(data, "Iron") }
     });
     $.ajax({
         url: "https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
-        dataType: "text", success: function(data) { HandlePlayerStats(data, 0, "Reg") }, error: function(data) { HandleError(data, "Reg") }
+        dataType: "text", success: function (data) { HandlePlayerStats(data, 0, "Reg") }, error: function (data) { HandleError(data, "Reg") }
     });
 }
 
 function HandlePlayerData(data) {
     //console.log(data);
     playerData = data;
+    if (wrongTiming) {
+        UpdateGoal(playerSkills);
+    }
     UpdatePlayerData();
 }
 
@@ -101,7 +106,7 @@ function HandlePlayerStats(data, type, typeString) {
 function dataReceived(type) {
     highscoresReceived.push(type);
     if (highscoresReceived.length == 3) {
-        highscoresReceived.sort(function(a, b){return b - a});
+        highscoresReceived.sort(function (a, b) { return b - a });
         switch (highscoresReceived[0]) {
             case 0:
                 maxHighscore = "Reg";
@@ -139,8 +144,10 @@ const getHighscore = () => {
 
 function UpdatePlayerData() {
     document.getElementById("rsn").innerText = playerData.name;
+    document.getElementById("totalLevel").innerText = numberWithCommas(playerData.totalskill);
     document.getElementById("totalXp").innerText = numberWithCommas(playerData.totalxp);
     document.getElementById("combatLevel").innerText = playerData.combatlevel;
+    document.getElementById("levelsToMaxTotal").innerText = numberWithCommas(2736 - playerData.totalskill);
     //document.getElementById("rank").innerText = numberWithCommas(playerData.rank);
 }
 
@@ -290,39 +297,43 @@ function sort(column, reverse = true) {
 }
 
 function UpdateGoal() {
-    let playerSkills = getHighscore();
-    let xpRemaining = 0;
-    for (s = 1; s < 28; s++) {
-        let tempRemValue = "";
-        if (s != 27) {
-            if (s == 25 || s == 19) {
-                tempRemValue = xpToGoal(playerSkills[s].xp, true, false)
+    if (playerData.length != 0) {
+        let playerSkills = getHighscore();
+        let xpRemaining = 0;
+        for (s = 1; s < 28; s++) {
+            let tempRemValue = "";
+            if (s != 27) {
+                if (s == 25 || s == 19) {
+                    tempRemValue = xpToGoal(playerSkills[s].xp, true, false)
+                } else {
+                    tempRemValue = xpToGoal(playerSkills[s].xp, false, false)
+                }
             } else {
-                tempRemValue = xpToGoal(playerSkills[s].xp, false, false)
+                tempRemValue = xpToGoal(playerSkills[s].xp, true, true)
             }
-        } else {
-            tempRemValue = xpToGoal(playerSkills[s].xp, true, true)
-        }
-        if (tempRemValue < 0) {
-            tempRemValue = 0;
-        }
-        let tempPercentageValue = Math.round(playerSkills[s].xp / (playerSkills[s].xp + tempRemValue) * 100);
-        let currElement = document.getElementById("skill" + s);
+            if (tempRemValue < 0) {
+                tempRemValue = 0;
+            }
+            let tempPercentageValue = Math.round(playerSkills[s].xp / (playerSkills[s].xp + tempRemValue) * 100);
+            let currElement = document.getElementById("skill" + s);
 
-        let attrRem = document.createAttribute('data-rem');
-        attrRem.value = tempRemValue;
-        let attrPercent = document.createAttribute('data-percent');
-        attrPercent.value = tempPercentageValue;
-        currElement.parentElement.setAttributeNode(attrRem);
-        currElement.parentElement.setAttributeNode(attrPercent);
+            let attrRem = document.createAttribute('data-rem');
+            attrRem.value = tempRemValue;
+            let attrPercent = document.createAttribute('data-percent');
+            attrPercent.value = tempPercentageValue;
+            currElement.parentElement.setAttributeNode(attrRem);
+            currElement.parentElement.setAttributeNode(attrPercent);
 
-        currElement.style = "width:" + tempPercentageValue + "%";
-        currElement.childNodes[8].innerText = numberWithCommas(tempRemValue);
-        currElement.childNodes[9].innerText = tempPercentageValue + "%";
-        xpRemaining = xpRemaining + tempRemValue;
+            currElement.style = "width:" + tempPercentageValue + "%";
+            currElement.childNodes[8].innerText = numberWithCommas(tempRemValue);
+            currElement.childNodes[9].innerText = tempPercentageValue + "%";
+            xpRemaining = xpRemaining + tempRemValue;
+        }
+        document.getElementById("xpRem").innerText = numberWithCommas(xpRemaining);
+        document.getElementById("percentRem").innerText = -(Math.round(xpRemaining / (playerData.totalxp + xpRemaining) * 100) - 100) + "%";
+    } else {
+        wrongTiming = true;
     }
-    document.getElementById("xpRem").innerText = numberWithCommas(xpRemaining);
-    document.getElementById("percentRem").innerText = -(Math.round(xpRemaining / (playerData.totalxp + xpRemaining) * 100) - 100) + "%";
 }
 
 function SetMilestone(playerSkills, lowestSkill) {
