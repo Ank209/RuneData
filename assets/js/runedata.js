@@ -16,9 +16,8 @@ let currentSortCol = "Default";
 GetUserData();
 
 function GetUserData() {
-    $.getJSON("assets/eliteskillxp.json", function (data) {
-        eliteXp = data;
-        //console.log(eliteXp);
+    $.ajax({
+        url: "assets/eliteskillxp.json", dataType: "json", success: function (data) { eliteXp = data; }
     });
     $.ajax({
         url: "https://crossorigin.me/https://apps.runescape.com/runemetrics/profile/profile?user=" + searchTerm + "&activities=0",
