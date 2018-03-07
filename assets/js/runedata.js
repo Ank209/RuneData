@@ -1,12 +1,16 @@
 let skills = ['Attack', 'Defence', 'Strength', 'Constitution', 'Ranged', 'Prayer', 'Magic', 'Cooking', 'Woodcutting', 'Fletching', 'Fishing', 'Firemaking', 'Crafting', 'Smithing', 'Mining', 'Herblore', 'Agility', 'Thieving', 'Slayer', 'Farming', 'Runecrafting', 'Hunter', 'Construction', 'Summoning', 'Dungeoneering', 'Divination', "Invention"];
-let playerSkills = [];
+let playerSkillsHC = [];
+let playerSkillsIron = [];
+let playerSkillsReg = [];
 let playerClues = [];
+let playerData = []
 let eliteXp = [];
+let highscoresReceived = [];
 let baseHTML = document.getElementById("mainData").innerHTML;
 
 let searchTerm = "Iron Ankh";
-let maxHighscore = "";
-let currentHighscores = "";
+let maxHighscore = "HC";
+let currentHighscores = "HC";
 let currentSortCol = "Default";
 
 GetUserData();
@@ -20,59 +24,38 @@ function GetUserData() {
         url: "https://crossorigin.me/https://apps.runescape.com/runemetrics/profile/profile?user=" + searchTerm + "&activities=0",
         dataType: "json", success: HandlePlayerData
     });
-    currentHighscores = "HC";
-    maxHighscore = "HC";
     $.ajax({ type: 'GET',
-        url: "http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
-        contentType: "text/plain", success: HandlePlayerStats, error: HandleErrorHCIM
+        url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
+        dataType: "text", success: function(data) { HandlePlayerStats(data, 2, "HC") }, error: function(data) { HandleError(data, "HC") }
+    });
+    $.ajax({
+        url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
+        dataType: "text", success: function(data) { HandlePlayerStats(data, 1, "Iron") }, error: function(data) { HandleError(data, "Iron") }
+    });
+    $.ajax({
+        url: "https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
+        dataType: "text", success: function(data) { HandlePlayerStats(data, 0, "Reg") }, error: function(data) { HandleError(data, "Reg") }
     });
 }
 
 function HandlePlayerData(data) {
     //console.log(data);
-    UpdatePlayerData(data)
+    playerData = data;
+    UpdatePlayerData();
 }
 
-function HandleErrorHCIM(error) {
+function HandleError(error, typeString) {
     if (error.status == 404) {
-        console.log("Player not found on hcim highscores, checking reg iron");
-        currentHighscores = "Iron";
-        maxHighscore = "Iron";
-        $.ajax({
-            url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
-            dataType: "text", success: HandlePlayerStats, error: HandleErrorIron
-        });
+        console.log("Player not found on " + typeString + " highscores");
     } else {
-        console.log("Error getting HCIM stats: " + error.status);
+        console.log("Error getting " + typeString + " stats: " + error.status);
     }
+    dataReceived(-1);
 }
 
-function HandleErrorIron(error) {
-    if (error.status == 404) {
-        console.log("Player not found on iron highscores, checking reg");
-        currentHighscores = "Reg";
-        maxHighscore = "Reg";
-        $.ajax({
-            url: "https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
-            dataType: "text", success: HandlePlayerStats, error: HandleErrorReg
-        });
-    } else {
-        console.log("Error getting Iron stats: " + error.status);
-    }
-}
-
-function HandleErrorReg(error) {
-    if (error.status == 404) {
-        console.log("Player Not found");
-    } else {
-        console.log("Error getting Reg stats: " + error.status);
-    }
-}
-
-function HandlePlayerStats(data) {
-    console.log("Player found on " + currentHighscores + " highscores.");
-    updateHighscore(false);
-    playerSkills = [];
+function HandlePlayerStats(data, type, typeString) {
+    console.log("Player found on " + typeString + " highscores.");
+    let playerSkills = [];
     let skills = data.split('\n');
     let i = 0;
     for (i; i < 28; i++) {
@@ -86,6 +69,7 @@ function HandlePlayerStats(data) {
         playerSkills.push(tempSkill);
         //console.log(skills[i]);
     }
+    playerClues = [];
     i = 52;
     for (i; i < 57; i++) {
         let clue = skills[i].split(',');
@@ -99,16 +83,66 @@ function HandlePlayerStats(data) {
         }
         playerClues.push(tempClue);
     }
+    switch (type) {
+        case 0:
+            playerSkillsReg = playerSkills;
+            break;
+        case 1:
+            playerSkillsIron = playerSkills;
+            break;
+        case 2:
+            playerSkillsHC = playerSkills;
+            break;
+    }
     //console.log(data);
     //TestOutput();
-    CreateSkillList();
+    dataReceived(type);
 }
 
-function UpdatePlayerData(data) {
-    document.getElementById("rsn").innerText = data.name;
-    document.getElementById("totalXp").innerText = numberWithCommas(data.totalxp);
-    document.getElementById("combatLevel").innerText = data.combatlevel;
-    //document.getElementById("rank").innerText = numberWithCommas(data.rank);
+function dataReceived(type) {
+    highscoresReceived.push(type);
+    if (highscoresReceived.length == 3) {
+        highscoresReceived.sort(function(a, b){return b - a});
+        switch (highscoresReceived[0]) {
+            case 0:
+                maxHighscore = "Reg";
+                currentHighscores = maxHighscore;
+                CreateSkillList(playerSkillsReg);
+                break;
+            case 1:
+                maxHighscore = "Iron";
+                currentHighscores = maxHighscore;
+                CreateSkillList(playerSkillsIron);
+                break;
+            case 2:
+                maxHighscore = "HC";
+                currentHighscores = maxHighscore;
+                CreateSkillList(playerSkillsHC);
+                break;
+        }
+        updateHighscore(false);
+    }
+}
+
+const getHighscore = () => {
+    switch (currentHighscores) {
+        case "Reg":
+            return playerSkillsReg;
+            break;
+        case "Iron":
+            return playerSkillsIron;
+            break;
+        case "HC":
+            return playerSkillsHC;
+            break;
+    }
+}
+
+function UpdatePlayerData() {
+    document.getElementById("rsn").innerText = playerData.name;
+    document.getElementById("totalXp").innerText = numberWithCommas(playerData.totalxp);
+    document.getElementById("combatLevel").innerText = playerData.combatlevel;
+    //document.getElementById("rank").innerText = numberWithCommas(playerData.rank);
 }
 
 function updateHighscore(newHighscore = true) {
@@ -146,24 +180,28 @@ function updateHighscore(newHighscore = true) {
 
 function RefreshPlayerData() {
     if (currentHighscores == "HC") {
-        $.ajax({
+        /*$.ajax({
             url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
             dataType: "text", success: HandlePlayerStats, error: HandleErrorHCIM
-        });
+        });*/
+        CreateSkillList(playerSkillsHC);
     } else if (currentHighscores == "Iron") {
-        $.ajax({
+        /*$.ajax({
             url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
             dataType: "text", success: HandlePlayerStats, error: HandleErrorIron
-        });
+        });*/
+        CreateSkillList(playerSkillsIron);
     } else if (currentHighscores == "Reg") {
-        $.ajax({
+        /*$.ajax({
             url: "https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
             dataType: "text", success: HandlePlayerStats, error: HandleErrorReg
-        });
+        });*/
+        CreateSkillList(playerSkillsReg);
     }
+    sort(currentSortCol, false);
 }
 
-function CreateSkillList() {
+function CreateSkillList(playerSkills) {
     document.getElementById("rank").innerText = playerSkills[0].rank;
     document.getElementById("mainData").innerHTML = baseHTML;
     let lowestSkill = 99;
@@ -219,14 +257,14 @@ function CreateSkillList() {
         document.getElementById("clueElite").innerText = playerClues[3].value;
         document.getElementById("clueMaster").innerText = playerClues[4].value;
     }
-    UpdateGoal();
-    SetMilestone(lowestSkill);
+    UpdateGoal(playerSkills);
+    SetMilestone(playerSkills, lowestSkill);
 }
 
-function sort(column) {
-    if (currentSortCol == column && tinysort.defaults.order == 'asc') {
+function sort(column, reverse = true) {
+    if (currentSortCol == column && tinysort.defaults.order == 'asc' && reverse) {
         tinysort.defaults.order = 'desc';
-    } else {
+    } else if (reverse) {
         tinysort.defaults.order = 'asc';
     }
     let skillElements = document.getElementsByClassName("skill-container");
@@ -253,6 +291,8 @@ function sort(column) {
 }
 
 function UpdateGoal() {
+    let playerSkills = getHighscore();
+    let xpRemaining = 0;
     for (s = 1; s < 28; s++) {
         let tempRemValue = "";
         if (s != 27) {
@@ -280,10 +320,13 @@ function UpdateGoal() {
         currElement.style = "width:" + tempPercentageValue + "%";
         currElement.childNodes[8].innerText = numberWithCommas(tempRemValue);
         currElement.childNodes[9].innerText = tempPercentageValue + "%";
+        xpRemaining = xpRemaining + tempRemValue;
     }
+    document.getElementById("xpRem").innerText = numberWithCommas(xpRemaining);
+    document.getElementById("percentRem").innerText = -(Math.round(xpRemaining / (playerData.totalxp + xpRemaining) * 100) - 100) + "%";
 }
 
-function SetMilestone(lowestSkill) {
+function SetMilestone(playerSkills, lowestSkill) {
     if (playerSkills[19].level == 120 && playerSkills[25].level == 120 && playerSkills[27].level == 120) {
         milestone = "Max Total";
     } else if (lowestSkill == 99) {

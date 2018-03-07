@@ -18,7 +18,15 @@ div {
 }
 
 #header {
-    height: 64px;
+    
+}
+
+.rsnHeader {
+    -webkit-margin-before: 0px;
+    -webkit-margin-after: 10px;
+    color: white;
+    font-size: 100px;
+    font-family: 'Tulpen One', cursive;
 }
 
 #leftData {
@@ -30,7 +38,8 @@ div {
     font-size: 75%;
     display: inline;
     margin: 13px 0 0 0;
-    padding: 0;
+    transform: translate(0, -5px);
+    padding-bottom: 0px;
     float: left;
     clear: left;
 }
@@ -49,11 +58,11 @@ div {
 
 .infoHCImage {
     display:inline-block; 
-    margin:10px 0px 0px -20px;
+    margin:0px 0px 0px -20px;
 }
 .infoIronImage {
     display:inline-block; 
-    margin:10px 0px 0px -20px;
+    margin:0px 0px 0px -20px;
 }
 
 .infoText {
@@ -63,13 +72,12 @@ div {
 }
 .infoRegText {
     width:50px; 
-    margin:10px 0px 0px 0px;
+    margin:0px 0px 0px 0px;
     display: inline-block; 
 }
 
 .darkDropdown {
-    margin-left: 10%;
-    margin-top: 10px;
+    margin: 10px 0px 10px 10%;
     width: 80%;
     background: #444;
     border-color: #111 #0a0a0a black;

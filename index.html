@@ -3,13 +3,15 @@
 <head>
     <title>Ankh's RuneData</title>
     <link rel="stylesheet" type="text/css" href="assets/runestyle.css"></link>
-    <script type="text/javascript" src="assets/js/jquery-3.3.1.js"></script>
-    <script type="text/javascript" src="assets/js/tinysort.js"></script>
+    <script type="text/javascript" src="assets/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="assets/tinysort.js"></script>
 </head>
 <body>
     <div id="header">
+        <p id="rsn" class="rsnHeader"></p>
     </div>
     <div id="leftData">
+        <div style="color:white; margin-top:10px;">Ranks</div>
         <div class="darkDropdown">
             <select class="darkSelect" id="highscore" onchange="updateHighscore()">
                 <option value="Reg">Regular</option>
@@ -29,8 +31,6 @@
             <div class="infoRegText" style="color:white">Regular</div>
         </div>
         <div class="playerData">
-            <p>RSN</p>
-            <h1 id="rsn"></h1>
             <p>Total Xp</p>
             <h1 id="totalXp"></h1>
             <p>Combat Level</p>
@@ -40,27 +40,34 @@
             <p>Overall Rank</p>
             <h1 id="rank"></h1>
         </div>
-        <div class="darkDropdown">
-            <select class=darkSelect id="target" onchange="UpdateGoal()">
-                <option value="Max">Maxed</option>
-                <option value="MaxT">Max Total</option>
-                <option value="120">120 All</option>
-                <option value="200m">200m All</option>
-            </select>
+        <div class="playerData">
+            <div style="color:white; margin-top:10px;">Goal</div>
+            <div class="darkDropdown">
+                <select class="darkSelect" id="target" onchange="UpdateGoal()">
+                    <option value="Max">Maxed</option>
+                    <option value="MaxT">Max Total</option>
+                    <option value="120">120 All</option>
+                    <option value="200m">200m All</option>
+                </select>
+            </div>
+            <p>Progress to Goal</p>
+            <h1 id="percentRem"></h1>
+            <p>Xp Remaining</p>
+            <h1 id="xpRem"></h1>
         </div>
         <div class="playerData">
-                <div style="color:white; margin-top:10px;">Clue Scrolls</div>
-                <p>Easy</p>
-                <h1 id="clueEasy"></h1>
-                <p>Medium</p>
-                <h1 id="clueMed"></h1>
-                <p>Hard</p>
-                <h1 id="clueHard"></h1>
-                <p>Elite</p>
-                <h1 id="clueElite"></h1>
-                <p>Master</p>
-                <h1 id="clueMaster"></h1>
-            </div>
+            <div style="color:white; margin-top:10px;">Clue Scrolls</div>
+            <p>Easy</p>
+            <h1 id="clueEasy"></h1>
+            <p>Medium</p>
+            <h1 id="clueMed"></h1>
+            <p>Hard</p>
+            <h1 id="clueHard"></h1>
+            <p>Elite</p>
+            <h1 id="clueElite"></h1>
+            <p>Master</p>
+            <h1 id="clueMaster"></h1>
+        </div>
     </div>
     <div id="mainData">
         <div id="skill0" class="skill-bar" style="width:0%">
@@ -69,8 +76,8 @@
             <div class="bar-text-level" onclick="sort('Lvl')">Lvl</div>
             <div class="bar-text-vlevel" onclick="sort('VLvl')">VLvl</div>
             <div class="bar-text-xp" onclick="sort('Xp')">Experience</div>
-            <div class="bar-text-tnl" onclick="sort('TNL')">TNL</div>
-            <div class="bar-text-remaining" onclick="sort('Rem')">To Go</div>
+            <div class="bar-text-tnl" onclick="sort('TNL')">Next Level</div>
+            <div class="bar-text-remaining" onclick="sort('Rem')">Xp To Goal</div>
             <div class="bar-text-percentage" onclick="sort('Percent')">%</div>
         </div>
         <div class="skill-container">
@@ -211,7 +218,6 @@
     </div>
 </body>
 <footer>
-    <script type="text/javascript" src="assets/js/runedata.js"></script>
+    <script type="text/javascript" src="assets/runedata.js"></script>
 </footer>
-
 </html>
