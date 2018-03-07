@@ -1,4 +1,5 @@
 let skills = ['Attack', 'Defence', 'Strength', 'Constitution', 'Ranged', 'Prayer', 'Magic', 'Cooking', 'Woodcutting', 'Fletching', 'Fishing', 'Firemaking', 'Crafting', 'Smithing', 'Mining', 'Herblore', 'Agility', 'Thieving', 'Slayer', 'Farming', 'Runecrafting', 'Hunter', 'Construction', 'Summoning', 'Dungeoneering', 'Divination', "Invention"];
+let percentageColors = ['#FF0000','#FF9B00','#E7E400','#6CBC00','#00BC00'];
 let playerSkillsHC = [];
 let playerSkillsIron = [];
 let playerSkillsReg = [];
@@ -290,7 +291,7 @@ function CreateSkillList(playerSkills) {
         currElement.parentElement.setAttributeNode(attrXp);
         currElement.parentElement.setAttributeNode(attrTNL);
         //currElement.data('xp', playerSkills[s].xp)
-        currElement.innerHTML = currElement.innerHTML + tempRank + tempLevel + tempVLevel + tempXp + tempTNL + '<div class="bar-text-remaining"></div>' + '<div class="bar-text-percentage" style="color:#00BC00;"></div>';
+        currElement.innerHTML = currElement.innerHTML + tempRank + tempLevel + tempVLevel + tempXp + tempTNL + '<div class="bar-text-remaining"></div>' + '<div class="bar-text-percentage"></div>';
         if (playerSkills[s].level < lowestSkill) {
             lowestSkill = playerSkills[s].level;
         }
@@ -301,8 +302,8 @@ function CreateSkillList(playerSkills) {
         document.getElementById("clueElite").innerText = playerClues[3].value;
         document.getElementById("clueMaster").innerText = playerClues[4].value;
     }
-    PageLoaded();
     UpdateGoal();
+    PageLoaded();
     SetMilestone(playerSkills, lowestSkill);
 }
 
@@ -340,6 +341,7 @@ function UpdateGoal() {
         let playerSkills = getHighscore();
         let xpRemaining = 0;
         let actualPlayerXp = 0;
+        let vTotal = 0;
         for (s = 1; s < 28; s++) {
             let tempRemValue = "";
             if (s != 27) {
@@ -350,13 +352,16 @@ function UpdateGoal() {
                     tempRemValue = xpToGoal(playerSkills[s].xp, false, false)
                     actualPlayerXp = actualPlayerXp + xpLessThanGoal(playerSkills[s].xp, false, false);
                 }
+                vTotal = vTotal + getLevel(playerSkills[s].xp);
             } else {
                 tempRemValue = xpToGoal(playerSkills[s].xp, true, true)
                 actualPlayerXp = actualPlayerXp + xpLessThanGoal(playerSkills[s].xp, true, true);
+                vTotal = vTotal + getLevel(playerSkills[s].xp, true);
             }
             if (tempRemValue < 0) {
                 tempRemValue = 0;
             }
+            
             let tempPercentageValue = Math.round(playerSkills[s].xp / (playerSkills[s].xp + tempRemValue) * 100);
             let currElement = document.getElementById("skill" + s);
 
@@ -370,12 +375,28 @@ function UpdateGoal() {
             currElement.style = "width:" + tempPercentageValue + "%";
             currElement.childNodes[8].innerText = numberWithCommas(tempRemValue);
             currElement.childNodes[9].innerText = tempPercentageValue + "%";
+            currElement.childNodes[9].setAttribute("style", "color: " + getColor(tempPercentageValue) + ";");
             xpRemaining = xpRemaining + tempRemValue;
         }
         document.getElementById("xpRem").innerText = numberWithCommas(xpRemaining);
         document.getElementById("percentRem").innerText = Math.round(actualPlayerXp / (actualPlayerXp + xpRemaining) * 100) + "%";
+        document.getElementById("levelsToTrueMax").innerText = numberWithCommas(3270 - vTotal);
     } else {
         wrongTiming = true;
+    }
+}
+
+const getColor = (percentage) => {
+    if (percentage < 25) {
+        return percentageColors[0];
+    } else if (percentage < 50) {
+        return percentageColors[1];
+    } else if (percentage < 75) {
+        return percentageColors[2];
+    } else if (percentage < 100) {
+        return percentageColors[3];
+    } else if (percentage == 100) {
+        return percentageColors[4];
     }
 }
 
