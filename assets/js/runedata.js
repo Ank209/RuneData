@@ -11,10 +11,12 @@ let wrongTiming = false;
 let baseHTML = document.getElementById("mainData").innerHTML;
 let pageLoaded = false;
 
-//let searchTerm = "about to dye";
+//TODO: clicking on skill opens highscores in new tab (search for player)
+//TODO: Add post? to address so specific players can be linked
+
 let maxHighscore = "HC";
 let currentHighscores = "HC";
-let currentSortCol = "Default";
+let currentSortCol = "default";
 
 function GetUserData(searchTerm) {
     $.ajax({
@@ -68,11 +70,14 @@ $("#header").submit(function(e) {
     e.preventDefault();
 });
 
+$("skill0").mousedown(function(e){ e.preventDefault(); });
+
 function searchPlayer() {
     //Show loading animation
     pageLoaded = false;
     document.getElementById("leftData").style.display = "none";
     document.getElementById("mainData").style.display = "none";
+    document.getElementById("profileImg").setAttribute("src", "");
     document.getElementById("searchHelp").style.display = "none";
     document.getElementById("loading").style.display = "block";
     playerSkillsHC = [];
@@ -84,7 +89,7 @@ function searchPlayer() {
     wrongTiming = false;
     maxHighscore = "HC";
     currentHighscores = "HC";
-    currentSortCol = "Default";
+    currentSortCol = "default";
     GetUserData(document.getElementById("rsn").value);
     document.getElementById("rsn").blur();
 }
@@ -181,6 +186,7 @@ const getHighscore = () => {
 }
 
 function UpdatePlayerData() {
+    document.getElementById("profileImg").setAttribute("src", "http://services.runescape.com/m=avatar-rs/" + playerData.name + "/chat.png");
     document.getElementById("rsn").value = "";
     document.getElementById("rsn").placeholder = playerData.name;
     document.getElementById("totalLevel").innerText = numberWithCommas(playerData.totalskill);
@@ -307,30 +313,52 @@ function CreateSkillList(playerSkills) {
 }
 
 function sort(column, reverse = true) {
+    let rotate = "";
+    if (currentSortCol != "default") {
+        document.getElementById(currentSortCol + "-arrow").setAttribute("src", "assets/images/arrowinactive.svg");
+        document.getElementById(currentSortCol + "-arrow").setAttribute("class", "");
+    }
     if (currentSortCol == column && tinysort.defaults.order == 'asc' && reverse) {
+        rotate = "rotate180";
         tinysort.defaults.order = 'desc';
     } else if (reverse) {
         tinysort.defaults.order = 'asc';
     }
     let skillElements = document.getElementsByClassName("skill-container");
-    if (column == "Default") {
+    if (column == "default") {
         tinysort(skillElements, { data: 'num' });
-    } else if (column == "Skill") {
+    } else if (column == "skill") {
         tinysort(skillElements, { data: 'skill' });
-    } else if (column == "Rank") {
+        document.getElementById("skill-arrow").setAttribute("src", "assets/images/arrowactive.svg");
+        document.getElementById("skill-arrow").setAttribute("class", rotate);
+    } else if (column == "rank") {
         tinysort(skillElements, { data: 'rank' });
-    } else if (column == "Lvl") {
+        document.getElementById("rank-arrow").setAttribute("src", "assets/images/arrowactive.svg");
+        document.getElementById("rank-arrow").setAttribute("class", rotate);
+    } else if (column == "lvl") {
         tinysort(skillElements, { data: 'lvl' }, { data: 'xp' });
-    } else if (column == "VLvl") {
+        document.getElementById("lvl-arrow").setAttribute("src", "assets/images/arrowactive.svg");
+        document.getElementById("lvl-arrow").setAttribute("class", rotate);
+    } else if (column == "vlvl") {
         tinysort(skillElements, { data: 'vlvl' }, { data: 'xp' });
-    } else if (column == "Xp") {
+        document.getElementById("vlvl-arrow").setAttribute("src", "assets/images/arrowactive.svg");
+        document.getElementById("vlvl-arrow").setAttribute("class", rotate);
+    } else if (column == "xp") {
         tinysort(skillElements, { data: 'xp' });
-    } else if (column == "TNL") {
+        document.getElementById("xp-arrow").setAttribute("src", "assets/images/arrowactive.svg");
+        document.getElementById("xp-arrow").setAttribute("class", rotate);
+    } else if (column == "tnl") {
         tinysort(skillElements, { data: 'tnl' });
-    } else if (column == "Rem") {
+        document.getElementById("tnl-arrow").setAttribute("src", "assets/images/arrowactive.svg");
+        document.getElementById("tnl-arrow").setAttribute("class", rotate);
+    } else if (column == "rem") {
         tinysort(skillElements, { data: 'rem' });
-    } else if (column == "Percent") {
+        document.getElementById("rem-arrow").setAttribute("src", "assets/images/arrowactive.svg");
+        document.getElementById("rem-arrow").setAttribute("class", rotate);
+    } else if (column == "percent") {
         tinysort(skillElements, { data: 'percent' });
+        document.getElementById("percent-arrow").setAttribute("src", "assets/images/arrowactive.svg");
+        document.getElementById("percent-arrow").setAttribute("class", rotate);
     }
     currentSortCol = column;
 }
@@ -372,9 +400,9 @@ function UpdateGoal() {
             currElement.parentElement.setAttributeNode(attrPercent);
 
             currElement.style = "width:" + tempPercentageValue + "%";
-            currElement.childNodes[8].innerText = numberWithCommas(tempRemValue);
-            currElement.childNodes[9].innerText = tempPercentageValue + "%";
-            currElement.childNodes[9].setAttribute("style", "color: " + getColor(tempPercentageValue) + ";");
+            currElement.childNodes[10].innerText = numberWithCommas(tempRemValue);
+            currElement.childNodes[11].innerText = tempPercentageValue + "%";
+            currElement.childNodes[11].setAttribute("style", "color: " + getColor(tempPercentageValue) + ";");
             xpRemaining = xpRemaining + tempRemValue;
         }
         document.getElementById("xpRem").innerText = numberWithCommas(xpRemaining);

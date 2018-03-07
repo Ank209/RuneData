@@ -3,6 +3,12 @@
     src: url(tulpen.ttf);
 }
 
+html {
+   margin:0;
+   padding:0;
+   height: 100%;
+}
+
 body {
     width: 1024px;
     margin: 5px auto 0;
@@ -11,18 +17,46 @@ body {
     font-family: 'Telex', sans-serif;
     text-align: center;
     vertical-align: middle;
+    height: 89%;
+}
+
+footer {
+    position:relative;
+    width:100%;
+    height:30px;
 }
 
 div {
     display: block;
 }
 
-#header {
-    
+a {
+    color: #00FFFF;
+}
+
+.container {
+    min-height: 100%;
+    height: auto;
+    position: relative;
+}
+
+div.skill-bar {
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
 }
 
 .spinner {
     display: none;
+}
+
+.rotate180 {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
 ::placeholder { 
@@ -145,6 +179,7 @@ textarea:focus, input:focus{
     float: left;
     width: 77%;
     min-height: 575px;
+    padding-bottom: 30px;
 }
 .skill-container {
     border-top: thin solid #484848;
@@ -187,11 +222,18 @@ textarea:focus, input:focus{
     border-bottom: thin solid #484848;
 }
 
+.chatHead {
+    transform: translate(0px, -110px);
+    margin-bottom:-100px;
+}
+
+.skill-image {
+    height: 30px;
+}
+
 .bar-text-icon {
-    position:absolute;
-    margin-left:4px;
-    height:22px;
-    margin-top:4px;
+    position: absolute;
+    height: 30px;
 }
 
 .bar-text-skill {
