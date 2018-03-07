@@ -1,6 +1,7 @@
 let skills = ['Attack', 'Defence', 'Strength', 'Constitution', 'Ranged', 'Prayer', 'Magic', 'Cooking', 'Woodcutting', 'Fletching', 'Fishing', 'Firemaking', 'Crafting', 'Smithing', 'Mining', 'Herblore', 'Agility', 'Thieving', 'Slayer', 'Farming', 'Runecrafting', 'Hunter', 'Construction', 'Summoning', 'Dungeoneering', 'Divination', "Invention"];
 let playerSkills = [];
 let playerClues = [];
+let eliteXp = [];
 let baseHTML = document.getElementById("mainData").innerHTML;
 
 let searchTerm = "Iron Ankh";
@@ -11,15 +12,19 @@ let currentSortCol = "Default";
 GetUserData();
 
 function GetUserData() {
+    $.getJSON("assets/eliteskillxp.json", function (data) {
+        eliteXp = data;
+        //console.log(eliteXp);
+    });
     $.ajax({
-        url:"https://crossorigin.me/https://apps.runescape.com/runemetrics/profile/profile?user=" + searchTerm + "&activities=0",
+        url: "https://crossorigin.me/https://apps.runescape.com/runemetrics/profile/profile?user=" + searchTerm + "&activities=0",
         dataType: "json", success: HandlePlayerData
     });
     currentHighscores = "HC";
     maxHighscore = "HC";
-    $.ajax({
-        url:"https://crossorigin.me/http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
-        dataType: "text", success: HandlePlayerStats, error: HandleErrorHCIM
+    $.ajax({ type: 'GET',
+        url: "http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
+        contentType: "text/plain", success: HandlePlayerStats, error: HandleErrorHCIM
     });
 }
 
@@ -34,7 +39,7 @@ function HandleErrorHCIM(error) {
         currentHighscores = "Iron";
         maxHighscore = "Iron";
         $.ajax({
-            url:"https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
+            url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
             dataType: "text", success: HandlePlayerStats, error: HandleErrorIron
         });
     } else {
@@ -48,7 +53,7 @@ function HandleErrorIron(error) {
         currentHighscores = "Reg";
         maxHighscore = "Reg";
         $.ajax({
-            url:"https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
+            url: "https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
             dataType: "text", success: HandlePlayerStats, error: HandleErrorReg
         });
     } else {
@@ -84,15 +89,19 @@ function HandlePlayerStats(data) {
     i = 52;
     for (i; i < 57; i++) {
         let clue = skills[i].split(',');
+        let tempClueValue = 0;
+        if (parseInt(clue[1]) != -1) {
+            tempClueValue = parseInt(clue[1]);
+        }
         let tempClue = {
             rank: parseInt(clue[0]),
-            value: parseInt(clue[1])
+            value: tempClueValue
         }
         playerClues.push(tempClue);
     }
-        //console.log(data);
-        //TestOutput();
-        CreateSkillList();
+    //console.log(data);
+    //TestOutput();
+    CreateSkillList();
 }
 
 function UpdatePlayerData(data) {
@@ -138,17 +147,17 @@ function updateHighscore(newHighscore = true) {
 function RefreshPlayerData() {
     if (currentHighscores == "HC") {
         $.ajax({
-            url:"https://crossorigin.me/http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
+            url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
             dataType: "text", success: HandlePlayerStats, error: HandleErrorHCIM
         });
     } else if (currentHighscores == "Iron") {
         $.ajax({
-            url:"https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
+            url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
             dataType: "text", success: HandlePlayerStats, error: HandleErrorIron
         });
     } else if (currentHighscores == "Reg") {
         $.ajax({
-            url:"https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
+            url: "https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
             dataType: "text", success: HandlePlayerStats, error: HandleErrorReg
         });
     }
@@ -167,10 +176,10 @@ function CreateSkillList() {
         let tempTNLValue = "";
         if (s != 27) {
             tempVLevelValue = getLevel(playerSkills[s].xp);
-            tempTNLValue = getXpDiff(playerSkills[s].xp, getXp(getLevel(playerSkills[s].xp)+1)); 
+            tempTNLValue = getXpDiff(playerSkills[s].xp, getXp(getLevel(playerSkills[s].xp) + 1));
         } else {
-            tempVLevelValue = "inv";
-            tempTNLValue = "inv";
+            tempVLevelValue = getLevel(playerSkills[s].xp, true);
+            tempTNLValue = getXpDiff(playerSkills[s].xp, getXp(getLevel(playerSkills[s].xp, true) + 1, true), true);
         }
         let tempVLevel = '<div class="bar-text-vlevel">' + tempVLevelValue + '</div>';
         let tempTNL = '<div class="bar-text-tnl">' + numberWithCommas(tempTNLValue) + '</div>';
@@ -178,7 +187,7 @@ function CreateSkillList() {
         let attrNum = document.createAttribute('data-num');
         attrNum.value = s;
         let attrSkill = document.createAttribute('data-skill');
-        attrSkill.value = skills[s-1];
+        attrSkill.value = skills[s - 1];
         let attrRank = document.createAttribute('data-rank');
         attrRank.value = playerSkills[s].rank;
         let attrLvl = document.createAttribute('data-lvl');
@@ -220,58 +229,58 @@ function sort(column) {
     } else {
         tinysort.defaults.order = 'asc';
     }
-    let skillElements =  document.getElementsByClassName("skill-container");
+    let skillElements = document.getElementsByClassName("skill-container");
     if (column == "Default") {
-        tinysort(skillElements, {data:'num'});
+        tinysort(skillElements, { data: 'num' });
     } else if (column == "Skill") {
-        tinysort(skillElements, {data:'skill'});
+        tinysort(skillElements, { data: 'skill' });
     } else if (column == "Rank") {
-        tinysort(skillElements, {data:'rank'});
+        tinysort(skillElements, { data: 'rank' });
     } else if (column == "Lvl") {
-        tinysort(skillElements, {data:'lvl'}, {data:'xp'});
+        tinysort(skillElements, { data: 'lvl' }, { data: 'xp' });
     } else if (column == "VLvl") {
-        tinysort(skillElements, {data:'vlvl'}, {data:'xp'});
+        tinysort(skillElements, { data: 'vlvl' }, { data: 'xp' });
     } else if (column == "Xp") {
-        tinysort(skillElements, {data:'xp'});
+        tinysort(skillElements, { data: 'xp' });
     } else if (column == "TNL") {
-        tinysort(skillElements, {data:'tnl'});
+        tinysort(skillElements, { data: 'tnl' });
     } else if (column == "Rem") {
-        tinysort(skillElements, {data:'rem'});
+        tinysort(skillElements, { data: 'rem' });
     } else if (column == "Percent") {
-        tinysort(skillElements, {data:'percent'});
+        tinysort(skillElements, { data: 'percent' });
     }
     currentSortCol = column;
 }
 
 function UpdateGoal() {
     for (s = 1; s < 28; s++) {
-    let tempRemValue = "";
-    if (s != 27) {
-        if (s == 25 || s == 19) {
-            tempRemValue = xpToGoal(playerSkills[s].xp, true, false)
+        let tempRemValue = "";
+        if (s != 27) {
+            if (s == 25 || s == 19) {
+                tempRemValue = xpToGoal(playerSkills[s].xp, true, false)
+            } else {
+                tempRemValue = xpToGoal(playerSkills[s].xp, false, false)
+            }
         } else {
-            tempRemValue = xpToGoal(playerSkills[s].xp, false, false)
+            tempRemValue = xpToGoal(playerSkills[s].xp, true, true)
         }
-    } else {
-        tempRemValue = xpToGoal(playerSkills[s].xp, true)
-    }
-    if (tempRemValue < 0) {
-        tempRemValue = 0;
-    }
-    let tempPercentageValue = Math.round(playerSkills[s].xp / (playerSkills[s].xp + tempRemValue) * 100);
-    let currElement = document.getElementById("skill" + s);
+        if (tempRemValue < 0) {
+            tempRemValue = 0;
+        }
+        let tempPercentageValue = Math.round(playerSkills[s].xp / (playerSkills[s].xp + tempRemValue) * 100);
+        let currElement = document.getElementById("skill" + s);
 
-    let attrRem = document.createAttribute('data-rem');
-    attrRem.value = tempRemValue;
-    let attrPercent = document.createAttribute('data-percent');
-    attrPercent.value = tempPercentageValue;
-    currElement.parentElement.setAttributeNode(attrRem);
-    currElement.parentElement.setAttributeNode(attrPercent);
+        let attrRem = document.createAttribute('data-rem');
+        attrRem.value = tempRemValue;
+        let attrPercent = document.createAttribute('data-percent');
+        attrPercent.value = tempPercentageValue;
+        currElement.parentElement.setAttributeNode(attrRem);
+        currElement.parentElement.setAttributeNode(attrPercent);
 
-    currElement.style = "width:" + tempPercentageValue + "%";
-    currElement.childNodes[8].innerText = numberWithCommas(tempRemValue);
-    currElement.childNodes[9].innerText = tempPercentageValue + "%";
-}
+        currElement.style = "width:" + tempPercentageValue + "%";
+        currElement.childNodes[8].innerText = numberWithCommas(tempRemValue);
+        currElement.childNodes[9].innerText = tempPercentageValue + "%";
+    }
 }
 
 function SetMilestone(lowestSkill) {
@@ -299,31 +308,60 @@ const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-const getXp = (level) => {
-    let e = 0;
-	for(i = 1; i < level; i++){
-		e += Math.floor(i + 300 * Math.pow(2, i / 7));
+const getXp = (level, elite = false) => {
+    if (elite) {
+        if (level > 150) {
+            return 200000000;
+        } else {
+            return parseInt(eliteXp[level].xp);
+        }
     }
-    return Math.min(Math.floor(e / 4),200000000);
+    if (level > 120) {
+        return 104273167;
+    }
+    let e = 0;
+    for (let i = 1; i < level; i++) {
+        e += Math.floor(i + 300 * Math.pow(2, i / 7));
+    }
+    return Math.min(Math.floor(e / 4), 200000000);
     //return Math.round((1/8)*level*(level - 1)+75*((Math.pow(2, (level-1)/7)-1)/(1-Math.pow(2,-1/7)))-0.109*level);
 }
 
-const getLevel = (xp) => {
+const getLevel = (xp, elite = false) => {
+    if (elite) {
+        if (xp >= 194927409) {
+            return 150;
+        }
+        for (let i = 0; i < eliteXp.length; i++) {
+            if (eliteXp[i].xp <= xp && eliteXp[i + 1].xp > xp) {
+                return i;
+            }
+        }
+    }
+    if (xp >= 104273167) {
+        return 120;
+    }
     let e = 0;
-	let test = 0;
-	let i = 0;
-	do {
-		i++;
-		e += Math.floor(i + 300 * Math.pow(2, i / 7));
-		test = Math.floor(e / 4);
-	} while(test <= xp);
-		
-	return i;
+    let test = 0;
+    let i = 0;
+    do {
+        i++;
+        e += Math.floor(i + 300 * Math.pow(2, i / 7));
+        test = Math.floor(e / 4);
+    } while (test <= xp);
+
+    return i;
 }
 
-const getXpDiff = (startXp, endXp) => {
+const getXpDiff = (startXp, endXp, elite = false) => {
+    if (elite && startXp >= 194927409) {
+        return 0;
+    }
+    if (startXp >= 104273167) {
+        return 0;
+    }
     let diff = endXp - startXp;
-    return Math.max(diff,-diff);
+    return Math.max(diff, -diff);
 }
 
 const xpToGoal = (currentXp, comp, elite) => {
@@ -331,15 +369,15 @@ const xpToGoal = (currentXp, comp, elite) => {
     let goal = select.options[select.selectedIndex].value;
 
     if (goal == "Max") {
-        return getXp(99) - currentXp;
+        return getXp(99, elite) - currentXp;
     } else if (goal == "MaxT") {
         if (comp) {
-            return getXp(120) - currentXp;
+            return getXp(120, elite) - currentXp;
         } else {
-            return getXp(99) - currentXp;
+            return getXp(99, elite) - currentXp;
         }
     } else if (goal == "120") {
-        return getXp(120) - currentXp;
+        return getXp(120, elite) - currentXp;
     } else if (goal == "200m") {
         return 200000000 - currentXp;
     } else {
