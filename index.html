@@ -7,8 +7,15 @@
     <script type="text/javascript" src="assets/js/tinysort.js"></script>
 </head>
 <body>
-    <div id="header">
-        <p id="rsn" class="rsnHeader"></p>
+    <form id="header" onsubmit="searchPlayer()">
+        <input type-"text" id="rsn" class="rsnHeader" placeholder="Search"></input>
+    </form>
+    <div id="searchHelp" style="font-size:20px;">
+        <span id="helpText">Click the word 'Search' above, type a player's name and press 'Enter' to search</span>
+    </div>
+    <div id="loading" class="spinner">
+        <img src="assets/images/spinner.svg" onerror="this.src='assets/images/spinnerstatic.png'"></img>
+        <h2>Loading, please wait</h2>
     </div>
     <div id="leftData">
         <div style="color:white; margin-top:10px;">Ranks</div>

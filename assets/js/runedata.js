@@ -8,15 +8,14 @@ let eliteXp = [];
 let highscoresReceived = [];
 let wrongTiming = false;
 let baseHTML = document.getElementById("mainData").innerHTML;
+let pageLoaded = false;
 
-let searchTerm = "about to dye";
+//let searchTerm = "about to dye";
 let maxHighscore = "HC";
 let currentHighscores = "HC";
 let currentSortCol = "Default";
 
-GetUserData();
-
-function GetUserData() {
+function GetUserData(searchTerm) {
     $.ajax({
         url: "assets/eliteskillxp.json", dataType: "json", success: function (data) { eliteXp = data; }
     });
@@ -27,15 +26,15 @@ function GetUserData() {
     $.ajax({
         type: 'GET',
         url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player=" + searchTerm,
-        dataType: "text", success: function (data) { HandlePlayerStats(data, 2, "HC") }, error: function (data) { HandleError(data, "HC") }
+        dataType: "text", success: function (data) { HandlePlayerStats(data, 2, "HC") }, error: function (data) { HandleError(data, 2, "HC") }
     });
     $.ajax({
         url: "https://crossorigin.me/http://services.runescape.com/m=hiscore_ironman/index_lite.ws?player=" + searchTerm,
-        dataType: "text", success: function (data) { HandlePlayerStats(data, 1, "Iron") }, error: function (data) { HandleError(data, "Iron") }
+        dataType: "text", success: function (data) { HandlePlayerStats(data, 1, "Iron") }, error: function (data) { HandleError(data, 1, "Iron") }
     });
     $.ajax({
         url: "https://crossorigin.me/http://services.runescape.com/m=hiscore/index_lite.ws?player=" + searchTerm,
-        dataType: "text", success: function (data) { HandlePlayerStats(data, 0, "Reg") }, error: function (data) { HandleError(data, "Reg") }
+        dataType: "text", success: function (data) { HandlePlayerStats(data, 0, "Reg") }, error: function (data) { HandleError(data, 0, "Reg") }
     });
 }
 
@@ -45,16 +44,54 @@ function HandlePlayerData(data) {
     if (wrongTiming) {
         UpdateGoal();
     }
-    UpdatePlayerData();
+    if (playerData.name) {
+        UpdatePlayerData();
+    }
 }
 
-function HandleError(error, typeString) {
+function HandleError(error, type, typeString) {
     if (error.status == 404) {
         console.log("Player not found on " + typeString + " highscores");
+        if (type == 0) {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("helpText").innerText = "Player not found, please check the spelling or try another";
+            document.getElementById("searchHelp").style.display = "block";
+        }
     } else {
         console.log("Error getting " + typeString + " stats: " + error.status);
     }
     dataReceived(-1);
+}
+
+$("#header").submit(function(e) {
+    e.preventDefault();
+});
+
+function searchPlayer() {
+    //Show loading animation
+    pageLoaded = false;
+    document.getElementById("leftData").style.display = "none";
+    document.getElementById("mainData").style.display = "none";
+    document.getElementById("searchHelp").style.display = "none";
+    document.getElementById("loading").style.display = "block";
+    playerSkillsHC = [];
+    playerSkillsIron = [];
+    playerSkillsReg = [];
+    playerClues = [];
+    playerData = []
+    highscoresReceived = [];
+    wrongTiming = false;
+    maxHighscore = "HC";
+    currentHighscores = "HC";
+    currentSortCol = "Default";
+    GetUserData(document.getElementById("rsn").value);
+    document.getElementById("rsn").blur();
+}
+
+function PageLoaded() {
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("leftData").style.display = "block";
+    document.getElementById("mainData").style.display = "block";
 }
 
 function HandlePlayerStats(data, type, typeString) {
@@ -143,7 +180,8 @@ const getHighscore = () => {
 }
 
 function UpdatePlayerData() {
-    document.getElementById("rsn").innerText = playerData.name;
+    document.getElementById("rsn").value = "";
+    document.getElementById("rsn").placeholder = playerData.name;
     document.getElementById("totalLevel").innerText = numberWithCommas(playerData.totalskill);
     document.getElementById("totalXp").innerText = numberWithCommas(playerData.totalxp);
     document.getElementById("combatLevel").innerText = playerData.combatlevel;
@@ -263,6 +301,7 @@ function CreateSkillList(playerSkills) {
         document.getElementById("clueElite").innerText = playerClues[3].value;
         document.getElementById("clueMaster").innerText = playerClues[4].value;
     }
+    PageLoaded();
     UpdateGoal();
     SetMilestone(playerSkills, lowestSkill);
 }
@@ -300,16 +339,20 @@ function UpdateGoal() {
     if (playerData.length != 0) {
         let playerSkills = getHighscore();
         let xpRemaining = 0;
+        let actualPlayerXp = 0;
         for (s = 1; s < 28; s++) {
             let tempRemValue = "";
             if (s != 27) {
                 if (s == 25 || s == 19) {
                     tempRemValue = xpToGoal(playerSkills[s].xp, true, false)
+                    actualPlayerXp = actualPlayerXp + xpLessThanGoal(playerSkills[s].xp, true, false);
                 } else {
                     tempRemValue = xpToGoal(playerSkills[s].xp, false, false)
+                    actualPlayerXp = actualPlayerXp + xpLessThanGoal(playerSkills[s].xp, false, false);
                 }
             } else {
                 tempRemValue = xpToGoal(playerSkills[s].xp, true, true)
+                actualPlayerXp = actualPlayerXp + xpLessThanGoal(playerSkills[s].xp, true, true);
             }
             if (tempRemValue < 0) {
                 tempRemValue = 0;
@@ -330,7 +373,7 @@ function UpdateGoal() {
             xpRemaining = xpRemaining + tempRemValue;
         }
         document.getElementById("xpRem").innerText = numberWithCommas(xpRemaining);
-        document.getElementById("percentRem").innerText = -(Math.round(xpRemaining / (playerData.totalxp + xpRemaining) * 100) - 100) + "%";
+        document.getElementById("percentRem").innerText = Math.round(actualPlayerXp / (actualPlayerXp + xpRemaining) * 100) + "%";
     } else {
         wrongTiming = true;
     }
@@ -417,7 +460,7 @@ const getXpDiff = (startXp, endXp, elite = false) => {
     return Math.max(diff, -diff);
 }
 
-const xpToGoal = (currentXp, comp, elite) => {
+const xpToGoal = (currentXp, comp, elite, limit = false) => {
     let select = document.getElementById("target");
     let goal = select.options[select.selectedIndex].value;
 
@@ -433,6 +476,27 @@ const xpToGoal = (currentXp, comp, elite) => {
         return getXp(120, elite) - currentXp;
     } else if (goal == "200m") {
         return 200000000 - currentXp;
+    } else {
+        return -1;
+    }
+}
+
+const xpLessThanGoal = (currentXp, comp, elite) => {
+    let select = document.getElementById("target");
+    let goal = select.options[select.selectedIndex].value;
+
+    if (goal == "Max") {
+        return Math.min(getXp(99, elite), currentXp);
+    } else if (goal == "MaxT") {
+        if (comp) {
+            return Math.min(getXp(120, elite), currentXp);
+        } else {
+            return Math.min(getXp(99, elite), currentXp);
+        }
+    } else if (goal == "120") {
+        return Math.min(getXp(120, elite), currentXp);
+    } else if (goal == "200m") {
+        return Math.min(200000000, currentXp);
     } else {
         return -1;
     }
