@@ -43,7 +43,7 @@ function HandlePlayerData(data) {
     //console.log(data);
     playerData = data;
     if (wrongTiming) {
-        UpdateGoal(playerSkills);
+        UpdateGoal();
     }
     UpdatePlayerData();
 }
@@ -263,7 +263,7 @@ function CreateSkillList(playerSkills) {
         document.getElementById("clueElite").innerText = playerClues[3].value;
         document.getElementById("clueMaster").innerText = playerClues[4].value;
     }
-    UpdateGoal(playerSkills);
+    UpdateGoal();
     SetMilestone(playerSkills, lowestSkill);
 }
 
