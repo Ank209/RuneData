@@ -303,7 +303,6 @@ function CreateSkillList(playerSkills) {
         document.getElementById("clueMaster").innerText = playerClues[4].value;
     }
     UpdateGoal();
-    PageLoaded();
     SetMilestone(playerSkills, lowestSkill);
 }
 
@@ -381,6 +380,7 @@ function UpdateGoal() {
         document.getElementById("xpRem").innerText = numberWithCommas(xpRemaining);
         document.getElementById("percentRem").innerText = Math.round(actualPlayerXp / (actualPlayerXp + xpRemaining) * 100) + "%";
         document.getElementById("levelsToTrueMax").innerText = numberWithCommas(3270 - vTotal);
+        PageLoaded();
     } else {
         wrongTiming = true;
     }
