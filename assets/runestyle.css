@@ -21,15 +21,34 @@ div {
     
 }
 
+.spinner {
+    display: none;
+}
+
+::placeholder { 
+    color: white;
+    opacity: 1; /* Firefox */
+}
+
+input:focus::-webkit-input-placeholder { color:transparent; }
+input:focus::-moz-placeholder { color:transparent; } /* FF 19+ */
+textarea:focus, input:focus{
+    outline: none;
+}
+
 .rsnHeader {
     -webkit-margin-before: 0px;
     -webkit-margin-after: 10px;
     color: white;
+    background-color: #1C1C1C;
     font-size: 100px;
     font-family: 'Tulpen One', cursive;
+    border: none;
+    text-align: center;
 }
 
 #leftData {
+    display: none;
     float: left;
     width: 23%;
 }
@@ -122,6 +141,7 @@ div {
 }
 
 #mainData {
+    display: none;
     float: left;
     width: 77%;
     min-height: 575px;
