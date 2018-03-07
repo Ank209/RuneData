@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ankh's RuneData</title>
+    <link rel="stylesheet" type="text/css" href="assets/runestyle.css"></link>
+    <script type="text/javascript" src="assets/js/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="assets/js/tinysort.js"></script>
+</head>
+<body>
+    <div id="header">
+    </div>
+    <div id="leftData">
+        <div class="darkDropdown">
+            <select class=darkSelect id="highscore" onchange="updateHighscore()">
+                <option value="Reg">Regular</option>
+                <option value="Iron" disabled>Ironman</option>
+                <option value="HC" selected="selected" disabled>Hardcore Ironman</option>
+            </select>
+        </div>
+        <div id="hcimInfo" style="display: none;">
+            <img src="assets/images/hcim.png" class="infoHCImage" />
+            <div class="infoText" style="color:red">Hardcore Ironman</div>
+        </div>
+        <div id="ironInfo" style="display: none;">
+            <img src="assets/images/iron.png" class="infoIronImage" />
+            <div class="infoText">Ironman</div>
+        </div>
+        <div id="regInfo" style="display: none;">
+            <div class="infoRegText" style="color:white">Regular</div>
+        </div>
+        <div class="playerData">
+            <p>RSN</p>
+            <h1 id="rsn"></h1>
+            <p>Total Xp</p>
+            <h1 id="totalXp"></h1>
+            <p>Combat Level</p>
+            <h1 id="combatLevel"></h1>
+            <p>Milestone</p>
+            <h1 id="milestone"></h1>
+            <p>Overall Rank</p>
+            <h1 id="rank"></h1>
+        </div>
+        <div class="darkDropdown">
+            <select class=darkSelect id="target" onchange="UpdateGoal()">
+                <option value="Max">Maxed</option>
+                <option value="MaxT">Max Total</option>
+                <option value="120">120 All</option>
+                <option value="200m">200m All</option>
+            </select>
+        </div>
+        <div class="playerData">
+                <div style="color:white; margin-top:10px;">Clue Scrolls</div>
+                <p>Easy</p>
+                <h1 id="clueEasy"></h1>
+                <p>Medium</p>
+                <h1 id="clueMed"></h1>
+                <p>Hard</p>
+                <h1 id="clueHard"></h1>
+                <p>Elite</p>
+                <h1 id="clueElite"></h1>
+                <p>Master</p>
+                <h1 id="clueMaster"></h1>
+            </div>
+    </div>
+    <div id="mainData">
+        <div id="skill0" class="skill-bar" style="width:0%">
+            <div class="bar-text-skill" onclick="sort('Skill')">Skill</div>
+            <div class="bar-text-rank" onclick="sort('Rank')">Rank</div>
+            <div class="bar-text-level" onclick="sort('Lvl')">Lvl</div>
+            <div class="bar-text-vlevel" onclick="sort('VLvl')">VLvl</div>
+            <div class="bar-text-xp" onclick="sort('Xp')">Experience</div>
+            <div class="bar-text-tnl" onclick="sort('TNL')">TNL</div>
+            <div class="bar-text-remaining" onclick="sort('Rem')">To Go</div>
+            <div class="bar-text-percentage" onclick="sort('Percent')">%</div>
+        </div>
+        <div class="skill-container">
+            <div id="skill1" class="skill-bar">
+                <div class="bar-text-skill">Attack</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill2" class="skill-bar">
+                <div class="bar-text-skill">Defence</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill3" class="skill-bar">
+                <div class="bar-text-skill">Strength</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill4" class="skill-bar">
+                <div class="bar-text-skill">Constitution</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill5" class="skill-bar">
+                <div class="bar-text-skill">Ranged</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill6" class="skill-bar">
+                <div class="bar-text-skill">Prayer</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill7" class="skill-bar">
+                <div class="bar-text-skill">Magic</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill8" class="skill-bar">
+                <div class="bar-text-skill">Cooking</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill9" class="skill-bar">
+                <div class="bar-text-skill">Woodcutting</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill10" class="skill-bar">
+                <div class="bar-text-skill">Fletching</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill11" class="skill-bar">
+                <div class="bar-text-skill">Fishing</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill12" class="skill-bar">
+                <div class="bar-text-skill">Firemaking</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill13" class="skill-bar">
+                <div class="bar-text-skill">Crafting</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill14" class="skill-bar">
+                <div class="bar-text-skill">Smithing</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill15" class="skill-bar">
+                <div class="bar-text-skill">Mining</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill16" class="skill-bar">
+                <div class="bar-text-skill">Herblore</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill17" class="skill-bar">
+                <div class="bar-text-skill">Agility</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill18" class="skill-bar">
+                <div class="bar-text-skill">Thieving</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill19" class="skill-bar">
+                <div class="bar-text-skill">Slayer</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill20" class="skill-bar">
+                <div class="bar-text-skill">Farming</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill21" class="skill-bar">
+                <div class="bar-text-skill">Runecrafting</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill22" class="skill-bar">
+                <div class="bar-text-skill">Hunter</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill23" class="skill-bar">
+                <div class="bar-text-skill">Construction</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill24" class="skill-bar">
+                <div class="bar-text-skill">Summoning</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill25" class="skill-bar">
+                <div class="bar-text-skill">Dungeoneering</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill26" class="skill-bar">
+                <div class="bar-text-skill">Divination</div>
+            </div>
+        </div>
+        <div class="skill-container">
+            <div id="skill27" class="skill-bar">
+                <div class="bar-text-skill">Invention</div>
+            </div>
+        </div>
+    </div>
+</body>
+<footer>
+    <script type="text/javascript" src="assets/runedata.js"></script>
+</footer>
+
+</html>
