@@ -4,6 +4,7 @@ function CheckPlayer() {
     if (getQueryVariable("playerName")) {
         playerName = decodeURI(getQueryVariable("playerName"));
         document.getElementById("rsn").value = playerName;
+        document.getElementById("searchHelp").style.display = "none";
     }
 }
 
