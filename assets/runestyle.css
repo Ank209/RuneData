@@ -1,7 +1,7 @@
-@font-face {
+/*@font-face {
     font-family: 'Tulpen One';
     src: url(tulpen.ttf);
-}
+}*/
 
 html {
    margin:0;
@@ -76,7 +76,7 @@ textarea:focus, input:focus{
     color: white;
     background-color: #1C1C1C;
     font-size: 100px;
-    font-family: 'Tulpen One', cursive;
+    font-family: 'Tulpen One';
     border: none;
     text-align: center;
 }
