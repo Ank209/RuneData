@@ -7,6 +7,7 @@ let playerClues = [];
 let playerData = []
 let eliteXp = [];
 let highscoresReceived = [];
+let playerName = "";
 let wrongTiming = false;
 let baseHTML = document.getElementById("mainData").innerHTML;
 let pageLoaded = false;
@@ -17,6 +18,27 @@ let pageLoaded = false;
 let maxHighscore = "HC";
 let currentHighscores = "HC";
 let currentSortCol = "default";
+
+CheckPlayer();
+
+function CheckPlayer() {
+    if (getQueryVariable("playerName")) {
+        playerName = decodeURI(getQueryVariable("playerName"));
+        document.getElementById("rsn").value = playerName;
+        searchPlayer();
+    }
+}
+
+function getQueryVariable(variable)
+{
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+}
 
 function GetUserData(searchTerm) {
     $.ajax({
@@ -72,6 +94,16 @@ $("#header").submit(function(e) {
 
 $("skill0").mousedown(function(e){ e.preventDefault(); });
 
+function LoadUserPage() {
+    let newURL = "";
+    if (window.location.href.includes("?playerName=")) {
+        newURL = window.location.href.slice(0, window.location.href.indexOf("?playerName=")) + "?playerName=" + document.getElementById("rsn").value;
+    } else {
+        newURL = window.location.href + "?playerName=" + document.getElementById("rsn").value;
+    }
+    window.location.href = newURL;
+}
+
 function searchPlayer() {
     //Show loading animation
     pageLoaded = false;
@@ -90,7 +122,8 @@ function searchPlayer() {
     maxHighscore = "HC";
     currentHighscores = "HC";
     currentSortCol = "default";
-    GetUserData(document.getElementById("rsn").value);
+    //GetUserData(document.getElementById("rsn").value);
+    GetUserData(playerName);
     document.getElementById("rsn").blur();
 }
 
@@ -98,6 +131,16 @@ function PageLoaded() {
     document.getElementById("loading").style.display = "none";
     document.getElementById("leftData").style.display = "block";
     document.getElementById("mainData").style.display = "block";
+}
+
+function OpenHighscores(skill) {
+    if (currentHighscores == "HC") {
+        window.open("http://services.runescape.com/m=hiscore_hardcore_ironman/ranking?table=" + skill + "&category_type=0&user=" + playerData.name);
+    } else if (currentHighscores == "Iron") {
+        window.open("http://services.runescape.com/m=hiscore_ironman/ranking?table=" + skill + "&category_type=0&user=" + playerData.name);
+    } else if (currentHighscores == "Reg") {
+        window.open("http://services.runescape.com/m=hiscore/ranking?table=" + skill + "&category_type=0&user=" + playerData.name);
+    }
 }
 
 function HandlePlayerStats(data, type, typeString) {
